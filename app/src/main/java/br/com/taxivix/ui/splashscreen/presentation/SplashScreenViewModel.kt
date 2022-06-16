@@ -1,4 +1,4 @@
-package br.com.taxivix.ui.listtaxistands.presentation
+package br.com.taxivix.ui.splashscreen.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,29 +9,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ListTaxiStandsViewModel(
+class SplashScreenViewModel(
     private val listTaxiStandsUseCase: ListTaxiStandsUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ListTaxiStandsState(false))
-    val uiState: StateFlow<ListTaxiStandsState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(SplashScreenState(Pages.SPLASH))
+    val uiState: StateFlow<SplashScreenState> = _uiState.asStateFlow()
 
-    fun getListTaxiStands() {
+    fun checkAddressConfirmed() {
         viewModelScope.launch {
             try {
                 val result = listTaxiStandsUseCase()
-                _uiState.update {
-                    it.copy(
-                        isSuccessful = true,
-                        items = result
-                    )
-                }
+                onResultCheckAddressConfirmed(true)
             } catch (e: Exception) {
-                onErrorListTaxiStands(e)
+                _uiState.update { it.copy( redirectTo = Pages.SPLASH ) }
             }
         }
     }
 
-    private fun onErrorListTaxiStands(e: Exception) {
-
+    private fun onResultCheckAddressConfirmed(confirmed: Boolean) {
+        _uiState.update { it.copy( redirectTo = if (confirmed) Pages.LIST_TAXI_STANDS else Pages.CONFIRM_ADDRESS) }
     }
 }

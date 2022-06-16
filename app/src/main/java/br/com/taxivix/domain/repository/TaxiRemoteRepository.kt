@@ -1,9 +1,11 @@
 package br.com.taxivix.domain.repository
 
-import br.com.taxivix.domain.repository.dto.TaxiStandResponse
+import br.com.taxivix.data.dto.TaxiStandResponse
 
 interface TaxiRemoteRepository {
     suspend fun getListStands(): List<TaxiStandResponse>
+
+    suspend fun getDetailStand(): TaxiStandResponse
 
     suspend fun confirmUserAddress()
 }

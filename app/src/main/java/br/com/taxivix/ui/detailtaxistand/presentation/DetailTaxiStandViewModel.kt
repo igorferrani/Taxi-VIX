@@ -1,28 +1,28 @@
-package br.com.taxivix.ui.listtaxistands.presentation
+package br.com.taxivix.ui.detailtaxistand.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.taxivix.domain.usecase.ListTaxiStandsUseCase
+import br.com.taxivix.domain.usecase.DetailTaxiStandUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ListTaxiStandsViewModel(
-    private val listTaxiStandsUseCase: ListTaxiStandsUseCase
+class DetailTaxiStandViewModel(
+    private val detailTaxiStandUseCase: DetailTaxiStandUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ListTaxiStandsState(false))
-    val uiState: StateFlow<ListTaxiStandsState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(DetailTaxiStandState(false))
+    val uiState: StateFlow<DetailTaxiStandState> = _uiState.asStateFlow()
 
     fun getListTaxiStands() {
         viewModelScope.launch {
             try {
-                val result = listTaxiStandsUseCase()
+                val result = detailTaxiStandUseCase()
                 _uiState.update {
                     it.copy(
                         isSuccessful = true,
-                        items = result
+                        taxiStand = result
                     )
                 }
             } catch (e: Exception) {

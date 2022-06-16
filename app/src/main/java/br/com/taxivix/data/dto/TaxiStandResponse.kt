@@ -1,4 +1,4 @@
-package br.com.taxivix.domain.repository.dto
+package br.com.taxivix.data.dto
 
 import br.com.taxivix.domain.model.TaxiStand
 
@@ -7,7 +7,7 @@ data class TaxiStandResponse(
     override val horizontalPoint: Double,
     override val verticalPoint: Double,
     override val pointName: String,
-    override val pointPhotos: List<String>,
+    override val pointPhoto: String,
     override val pointPhone: String
 ) : TaxiStand {
 

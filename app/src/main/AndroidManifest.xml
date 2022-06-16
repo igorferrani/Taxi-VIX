@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.com.taxivix">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,8 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaxiVIX"
         android:name=".CustomApplication">
+
         <activity
-            android:name=".ui.confirmaddress.ConfirmAddressActivity"
+            android:name=".ui.splashscreen.SplashScreenActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.TaxiVIX">
@@ -22,7 +25,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.confirmaddress.ConfirmAddressActivity" />
+
         <activity android:name=".ui.listtaxistands.ListTaxiStandsActivity" />
+
+        <activity android:name=".ui.detailtaxistand.DetailTaxiStandActivity" />
     </application>
 
 </manifest>
