@@ -1,19 +1,30 @@
 package br.com.taxivix.ui.splashscreen
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import br.com.taxivix.ui.confirmaddress.ConfirmAddressActivity
 import br.com.taxivix.ui.listtaxistands.ListTaxiStandsActivity
 import br.com.taxivix.ui.splashscreen.presentation.Pages
@@ -27,7 +38,9 @@ class SplashScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.checkAddressConfirmed()
+        Handler(Looper.getMainLooper()).postDelayed({
+            viewModel.checkAddressConfirmed()
+        }, 3000)
 
         setContent {
             TaxiVIXTheme {
@@ -42,17 +55,35 @@ class SplashScreenActivity : ComponentActivity() {
 
 @Composable
 private fun ContainerSplash(viewModel: SplashScreenViewModel) {
-    val context = LocalContext.current
+    val activity = (LocalContext.current as? Activity)
     val uiState by viewModel.uiState.collectAsState()
     LaunchedEffect(uiState) {
         when (viewModel.uiState.value.redirectTo) {
             Pages.CONFIRM_ADDRESS -> {
-                context.startActivity(Intent(context, ConfirmAddressActivity::class.java))
+                activity?.let{
+                    it.startActivity(Intent(activity, ConfirmAddressActivity::class.java))
+                    it.finish()
+                }
             }
             Pages.LIST_TAXI_STANDS -> {
-                context.startActivity(Intent(context, ListTaxiStandsActivity::class.java))
+                activity?.let{
+                    it.startActivity(Intent(activity, ListTaxiStandsActivity::class.java))
+                    it.finish()
+                }
+
             }
             Pages.SPLASH -> {}
         }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Taxi VIX",
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

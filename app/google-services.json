@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "659504848965",
+    "project_id": "taxi-vix-39f76",
+    "storage_bucket": "taxi-vix-39f76.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659504848965:android:a564f268a13cd7afa5832c",
+        "android_client_info": {
+          "package_name": "br.com.taxivix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659504848965-pfmmcu6dnmirdh08498kdik05nd6bhsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuNdmRRCdov1hRYKKVHNBO6Q2-zl4Fj0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659504848965-pfmmcu6dnmirdh08498kdik05nd6bhsu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

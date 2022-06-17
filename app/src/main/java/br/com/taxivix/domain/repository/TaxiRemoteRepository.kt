@@ -5,7 +5,5 @@ import br.com.taxivix.data.dto.TaxiStandResponse
 interface TaxiRemoteRepository {
     suspend fun getListStands(): List<TaxiStandResponse>
 
-    suspend fun getDetailStand(): TaxiStandResponse
-
-    suspend fun confirmUserAddress()
+    suspend fun getDetailStand(id: String): TaxiStandResponse
 }

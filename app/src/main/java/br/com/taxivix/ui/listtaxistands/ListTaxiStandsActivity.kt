@@ -65,7 +65,9 @@ private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel) {
 private fun ItemPoint(item: TaxiStand) {
     val context = LocalContext.current
     Row(Modifier.clickable {
-        context.startActivity(Intent(context, DetailTaxiStandActivity::class.java))
+        val intent = Intent(context, DetailTaxiStandActivity::class.java)
+        intent.putExtra("id", item.id)
+        context.startActivity(intent)
     }) {
         Column(
             modifier = Modifier
@@ -84,7 +86,7 @@ private fun ItemPoint(item: TaxiStand) {
                 .weight(1f)
         ) {
             Text(text = item.pointName)
-            Text(text = item.fullNameOfAddress, style = TextStyle(fontSize = 12.sp))
+            Text(text = item.fullNameOfAddress)
             Text(text = item.pointPhone)
         }
     }

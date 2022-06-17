@@ -1,5 +1,6 @@
 package br.com.taxivix.ui.detailtaxistand.presentation
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.taxivix.domain.usecase.DetailTaxiStandUseCase
@@ -15,10 +16,12 @@ class DetailTaxiStandViewModel(
     private val _uiState = MutableStateFlow(DetailTaxiStandState(false))
     val uiState: StateFlow<DetailTaxiStandState> = _uiState.asStateFlow()
 
-    fun getListTaxiStands() {
+    var phoneNumber: String? = null
+
+    fun getTaxiStand(id: String) {
         viewModelScope.launch {
             try {
-                val result = detailTaxiStandUseCase()
+                val result = detailTaxiStandUseCase(id)
                 _uiState.update {
                     it.copy(
                         isSuccessful = true,
