@@ -1,5 +1,6 @@
 package br.com.taxivix.ui.confirmaddress.presentation
 
 data class ConfirmAddressState(
-    var isSuccessful: Boolean
+    val isSuccessful: Boolean,
+    val isLoading: Boolean = false
 )

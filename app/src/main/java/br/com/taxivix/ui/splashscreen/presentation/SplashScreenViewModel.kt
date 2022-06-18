@@ -23,9 +23,8 @@ class SplashScreenViewModel(
         viewModelScope.launch {
             try {
                 val shared = SharedPreferencesManager.getInstance(getApplication())
-                val uf = shared.getString("uf", "")
-                val city = shared.getString("city", "")
-                onResultCheckAddressConfirmed(uf?.isNotEmpty() ?: false && city?.isNotEmpty() ?: false)
+                val city = shared.getString("cityId", "")
+                onResultCheckAddressConfirmed(city?.isNotEmpty() ?: false)
             } catch (e: Exception) {
                 _uiState.update { it.copy( redirectTo = Pages.SPLASH ) }
             }

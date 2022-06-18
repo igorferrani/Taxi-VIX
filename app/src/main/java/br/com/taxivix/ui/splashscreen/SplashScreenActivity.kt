@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.WindowInsetsController
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.com.taxivix.ui.confirmaddress.ConfirmAddressActivity
 import br.com.taxivix.ui.listtaxistands.ListTaxiStandsActivity
 import br.com.taxivix.ui.splashscreen.presentation.Pages
@@ -83,7 +81,8 @@ private fun ContainerSplash(viewModel: SplashScreenViewModel) {
     ) {
         Text(
             text = "Taxi VIX",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            fontSize = 28.sp
         )
     }
 }

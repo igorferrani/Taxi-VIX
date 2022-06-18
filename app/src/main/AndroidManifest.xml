@@ -28,6 +28,8 @@
 
         <activity android:name=".ui.confirmaddress.ConfirmAddressActivity" />
 
+        <activity android:name=".ui.confirmaddress.ListCitiesActivity" />
+
         <activity android:name=".ui.listtaxistands.ListTaxiStandsActivity" />
 
         <activity android:name=".ui.detailtaxistand.DetailTaxiStandActivity" />

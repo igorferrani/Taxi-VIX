@@ -6,10 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -81,9 +81,11 @@ private fun ContainerListTaxiStands(viewModel: DetailTaxiStandViewModel, callPho
 
     val uiState by viewModel.uiState.collectAsState()
     var taxiStand by remember { mutableStateOf<TaxiStand?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState) {
-        if (viewModel.uiState.value.isSuccessful) {
+        isLoading = viewModel.uiState.value.isLoading
+        if (viewModel.uiState.value.error == null) {
             taxiStand = viewModel.uiState.value.taxiStand
         }
     }
@@ -108,36 +110,47 @@ private fun ContainerListTaxiStands(viewModel: DetailTaxiStandViewModel, callPho
                 elevation = 12.dp
             )
         }, content = {
-            taxiStand?.let {
-                Header(it, callPhoneNumber)
+            Column {
+                if (isLoading) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                ContentDetailTaxiStand(taxiStand, callPhoneNumber)
             }
         }
     )
 }
 
 @Composable
-private fun Header(item: TaxiStand, callPhoneNumber: (number: String) -> Unit) {
-    Column {
-        NetworkImage(
-            modifier = Modifier
-                .height(200.dp),
-            url = item.pointPhoto,
-        )
-        Column(
-            modifier = Modifier
-                .padding(12.dp)
-                .weight(1f)
-        ) {
-            Text(
-                text = item.pointName,
-                fontWeight = FontWeight.Bold
-            )
-            Text(text = item.fullNameOfAddress)
-            Text(text = item.pointPhone)
+private fun ContentDetailTaxiStand(item: TaxiStand?, callPhoneNumber: (number: String) -> Unit) {
+    item?.let {
+        Column {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                item {
+                    NetworkImage(
+                        modifier = Modifier.height(200.dp),
+                        url = item.pointPhoto,
+                    )
+                    Column(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .weight(1f)
+                    ) {
+                        Text(
+                            text = item.pointName,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(text = item.fullNameOfAddress)
+                        Text(text = item.pointPhone)
+                    }
+                }
+            }
 
             Button(
                 modifier = Modifier
-                    .padding(top = 12.dp)
+                    .padding(12.dp)
                     .fillMaxWidth(),
                 onClick = {
                     callPhoneNumber(item.pointPhone)

@@ -1,5 +1,6 @@
 package br.com.taxivix.ui.confirmaddress
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,14 +15,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.edit
 import br.com.taxivix.ui.confirmaddress.presentation.ConfirmAddressEvent
 import br.com.taxivix.ui.confirmaddress.presentation.ConfirmAddressViewModel
-import br.com.taxivix.ui.confirmaddress.presentation.ListCitiesState
-import br.com.taxivix.ui.confirmaddress.presentation.ListStatesState
 import br.com.taxivix.ui.listtaxistands.ListTaxiStandsActivity
 import br.com.taxivix.ui.theme.TaxiVIXTheme
-import br.com.taxivix.util.SharedPreferencesManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ConfirmAddressActivity : ComponentActivity() {
@@ -29,6 +26,9 @@ class ConfirmAddressActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel.onEvent(ConfirmAddressEvent.GetCurrentCity)
+
         setContent {
             TaxiVIXTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
@@ -38,144 +38,82 @@ class ConfirmAddressActivity : ComponentActivity() {
         }
     }
 
-    private fun onClickConfirmAddress(mUF: String, mCity: String) {
-        viewModel.onEvent(ConfirmAddressEvent.ConfirmAddress(mUF, mCity))
+    private fun onClickConfirmAddress(cityId: String, cityName: String) {
+        viewModel.onEvent(ConfirmAddressEvent.ConfirmAddress(cityId, cityName))
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == 1) {
+            val cityId = data?.getStringExtra("cityId")
+            val cityName = data?.getStringExtra("cityName")
+
+            if (cityId != null && cityName != null){
+                viewModel.onEvent(ConfirmAddressEvent.ChangeCity(cityId, cityName))
+            }
+        }
     }
 }
 
 @Composable
-private fun ContainerConfirmAddress(onClickConfirm: (mUF: String, mCity: String) -> Unit, viewModel: ConfirmAddressViewModel) {
-    val context = LocalContext.current
+private fun ContainerConfirmAddress(onClickConfirm: (cityId: String, cityName: String) -> Unit, viewModel: ConfirmAddressViewModel) {
+    val context = LocalContext.current as Activity
     val uiState by viewModel.uiState.collectAsState()
-    val uiListStatesState by viewModel.uiListStatesState.collectAsState()
-    val uiListCitiesState by viewModel.uiListCitiesState.collectAsState()
+    val uiCityState by viewModel.uiCityState.collectAsState()
 
-    var mUF by remember { mutableStateOf("") }
-    var mCity by remember { mutableStateOf("") }
-
-    var expandedMenuStates by remember { mutableStateOf(false) }
-    var expandedMenuCities by remember { mutableStateOf(false) }
-
-    var mListMenuStates by remember { mutableStateOf(emptyList<String>()) }
-    var mListMenuCities by remember { mutableStateOf(emptyList<String>()) }
+    var mCityName by remember { mutableStateOf("") }
+    var mCityId by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState) {
         if (viewModel.uiState.value.isSuccessful) {
-            context.startActivity(Intent(context, ListTaxiStandsActivity::class.java))
+            val intent = Intent(context, ListTaxiStandsActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            context.finish()
         }
     }
 
-    LaunchedEffect(uiListStatesState) {
-        viewModel.uiListStatesState.value.let { listStatesState ->
-            when (listStatesState) {
-                is ListStatesState.Success -> {
-                    if (!expandedMenuStates && listStatesState.list.isNotEmpty()) {
-                        mListMenuStates = listStatesState.list.map {
-                            it.sigla
-                        }
-                        expandedMenuStates = true
-                    }
-                }
-                is ListStatesState.Error -> {
-
-                }
+    LaunchedEffect(uiCityState) {
+        viewModel.uiCityState.value.let { cityState ->
+            if (cityState.citySelected) {
+                mCityName = cityState.cityName
+                mCityId = cityState.cityId
             }
         }
     }
 
-    LaunchedEffect(uiListCitiesState) {
-        viewModel.uiListCitiesState.value.let { listCitiesState ->
-            when (listCitiesState) {
-                is ListCitiesState.Success -> {
-                    if (!expandedMenuCities && listCitiesState.list.isNotEmpty()) {
-                        mListMenuCities = listCitiesState.list.map {
-                            it.nome
-                        }
-                        expandedMenuCities = true
-                    }
-                }
-                is ListCitiesState.Error -> {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Selecione sua cidade", style = TextStyle(fontSize = 26.sp))
 
-                }
+        OutlinedTextField(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth()
+                .clickable {
+                    val intent = Intent(context, ListCitiesActivity::class.java)
+                    context.startActivityForResult(intent, 1)
+                },
+            value = mCityName,
+            onValueChange = {},
+            enabled = false,
+            label = { Text("Cidade") }
+        )
+
+        Button(
+            modifier = Modifier
+                .padding(horizontal = 24.dp, vertical = 12.dp)
+                .fillMaxWidth()
+                .height(40.dp),
+            onClick = {
+                onClickConfirm(mCityId, mCityName)
             }
-        }
-    }
-
-    Row {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Local de embarque", style = TextStyle(fontSize = 20.sp))
-            OutlinedTextField(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                        viewModel.onEvent(ConfirmAddressEvent.GetListStates)
-                    },
-                value = mUF,
-                enabled = false,
-                onValueChange = {},
-                label = { Text("Estado") }
-            )
-
-            OutlinedTextField(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                        viewModel.onEvent(ConfirmAddressEvent.GetListCities(mUF))
-                    },
-                value = mCity,
-                onValueChange = {},
-                enabled = false,
-                label = { Text("Cidade") }
-            )
-
-            Button(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 12.dp)
-                    .fillMaxWidth(),
-                onClick = {
-                    onClickConfirm(mUF, mCity)
-                }
-            ) {
-                Text("Confirmar")
-            }
-
-            DropdownMenu(
-                expanded = expandedMenuStates,
-                onDismissRequest = {
-                    expandedMenuStates = false
-                }
-            ) {
-                mListMenuStates.forEach { label ->
-                    DropdownMenuItem(onClick = {
-                        mUF = label
-                        expandedMenuStates = false
-                    }) {
-                        Text(text = label)
-                    }
-                }
-            }
-
-            DropdownMenu(
-                expanded = expandedMenuCities,
-                onDismissRequest = {
-                    expandedMenuCities = false
-                }
-            ) {
-                mListMenuCities.forEach { label ->
-                    DropdownMenuItem(onClick = {
-                        mCity = label
-                        expandedMenuCities = false
-                    }) {
-                        Text(text = label)
-                    }
-                }
-            }
+            Text("Confirmar")
         }
     }
 }
