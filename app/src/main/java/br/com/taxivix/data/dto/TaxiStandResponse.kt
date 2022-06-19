@@ -8,5 +8,7 @@ data class TaxiStandResponse(
     override val fullNameOfAddress: String,
     override val pointName: String,
     override val pointPhoto: String,
-    override val pointPhone: String
+    override val pointPhone: String,
+    override val latitude: Double,
+    override val longitude: Double
 ) : TaxiStand
