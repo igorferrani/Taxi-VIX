@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,29 +40,40 @@ class ListTaxiStandsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands())
+        getListTaxiStands()
         viewModel.onEvent(ListTaxiStandsEvent.GetCurrentCity)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            getLocation()
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-        }
 
         setContent {
             TaxiVIXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-                    ContainerListTaxiStands(viewModel, ::getLocation)
+                    ContainerListTaxiStands(viewModel, ::getListTaxiStands)
                 }
             }
         }
     }
 
+    private fun getListTaxiStands() {
+        if (viewModel.locationState.value.isUsingLocation) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                getLocation()
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            }
+        } else {
+            viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands())
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private fun getLocation() {
+        val location = Location(LocationManager.GPS_PROVIDER)
+        location.latitude = -20.346991
+        location.longitude = -40.384819
+        viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(location))
+        return
         fusedLocationProviderClient?.lastLocation?.addOnCompleteListener {
             viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(it.result))
         }
@@ -68,7 +81,7 @@ class ListTaxiStandsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, onChangeUsingLocation: () -> Unit) {
+private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, getListTaxiStands: () -> Unit) {
     val context = LocalContext.current as Activity
     val uiState by viewModel.uiState.collectAsState()
     val locationState by viewModel.locationState.collectAsState()
@@ -78,13 +91,9 @@ private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, onChange
     var checkIsUsingLocation by remember { mutableStateOf(false) }
 
     LaunchedEffect(locationState) {
-        checkIsUsingLocation = viewModel.locationState.value.isUsingLocation
-        if (viewModel.locationState.value.valueChanged) {
-            if (checkIsUsingLocation) {
-                onChangeUsingLocation()
-            } else {
-                viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands())
-            }
+        checkIsUsingLocation = locationState.isUsingLocation
+        if (locationState.valueChanged) {
+            getListTaxiStands()
         }
     }
 

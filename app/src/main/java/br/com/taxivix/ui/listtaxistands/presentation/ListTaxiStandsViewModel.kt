@@ -23,6 +23,10 @@ class ListTaxiStandsViewModel(
 
     private val _locationState = MutableStateFlow(UserLocationState())
     val locationState: StateFlow<UserLocationState> = _locationState.asStateFlow()
+        get() = field.apply {
+            value.isUsingLocation = SharedPreferencesManager.getInstance(getApplication())
+                .getBoolean("isUsingLocation", false)
+        }
 
     fun onEvent(event: ListTaxiStandsEvent) {
         when (event) {
@@ -49,6 +53,8 @@ class ListTaxiStandsViewModel(
     }
 
     private fun onChangeStateLocation(isUsingLocation: Boolean) {
+        SharedPreferencesManager.getInstance(getApplication())
+            .edit { putBoolean("isUsingLocation", isUsingLocation).commit() }
         _locationState.update { it.copy(
             isUsingLocation = isUsingLocation,
             valueChanged = true
