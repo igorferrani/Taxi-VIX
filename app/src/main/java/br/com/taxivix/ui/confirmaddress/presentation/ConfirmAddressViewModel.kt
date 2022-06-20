@@ -79,14 +79,14 @@ class ConfirmAddressViewModel(
 
     private fun onGetCurrentCity() {
         val shared = SharedPreferencesManager.getInstance(getApplication())
-        val cityId = shared.getString("cityId", "")
-        val cityName = shared.getString("cityName", "")
+        val cityId = shared.getString("cityId", "") ?: ""
+        val cityName = shared.getString("cityName", "") ?: ""
 
         _uiCityState.update {
             it.copy(
-                citySelected = true,
-                cityId = cityId ?: "",
-                cityName = cityName ?: ""
+                citySelected = cityId.isNotEmpty() && cityName.isNotEmpty(),
+                cityId = cityId,
+                cityName = cityName
             )
         }
     }

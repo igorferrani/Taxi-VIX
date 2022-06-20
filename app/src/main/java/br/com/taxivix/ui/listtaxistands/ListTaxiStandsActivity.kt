@@ -69,11 +69,11 @@ class ListTaxiStandsActivity : ComponentActivity() {
 
     @SuppressLint("MissingPermission")
     private fun getLocation() {
-        val location = Location(LocationManager.GPS_PROVIDER)
+        /*val location = Location(LocationManager.GPS_PROVIDER)
         location.latitude = -20.346991
         location.longitude = -40.384819
         viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(location))
-        return
+        return*/
         fusedLocationProviderClient?.lastLocation?.addOnCompleteListener {
             viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(it.result))
         }
@@ -132,7 +132,7 @@ private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, getListT
                 checked = checkIsUsingLocation, onCheckedChange = {
                 viewModel.onEvent(ListTaxiStandsEvent.ChangePrefUserLocation(it))
             })
-            Text("User minha localização",
+            Text("Usar minha localização",
                 modifier = Modifier
                     .padding(start = 6.dp, bottom = 6.dp)
             )

@@ -63,6 +63,7 @@ private fun ContainerConfirmAddress(onClickConfirm: (cityId: String, cityName: S
 
     var mCityName by remember { mutableStateOf("") }
     var mCityId by remember { mutableStateOf("") }
+    var enabledButtonConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState) {
         if (viewModel.uiState.value.isSuccessful) {
@@ -77,6 +78,7 @@ private fun ContainerConfirmAddress(onClickConfirm: (cityId: String, cityName: S
     LaunchedEffect(uiCityState) {
         viewModel.uiCityState.value.let { cityState ->
             if (cityState.citySelected) {
+                enabledButtonConfirm = true
                 mCityName = cityState.cityName
                 mCityId = cityState.cityId
             }
@@ -109,6 +111,7 @@ private fun ContainerConfirmAddress(onClickConfirm: (cityId: String, cityName: S
                 .padding(horizontal = 24.dp, vertical = 12.dp)
                 .fillMaxWidth()
                 .height(40.dp),
+            enabled = enabledButtonConfirm,
             onClick = {
                 onClickConfirm(mCityId, mCityName)
             }
