@@ -1,5 +1,6 @@
 package br.com.taxivix.data
 
+import android.location.Location
 import br.com.taxivix.data.dto.TaxiStandResponse
 import br.com.taxivix.domain.repository.TaxiRemoteRepository
 import br.com.taxivix.util.AddressCalc
@@ -8,37 +9,46 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class TaxiRemoteRepositoryImpl : TaxiRemoteRepository {
-    override suspend fun getListStands(cityId: String): List<TaxiStandResponse> {
-        val tempList = mutableListOf<TaxiStandResponse>()
+    override suspend fun getListStands(cityId: String, location: Location?): List<TaxiStandResponse> {
+        val originalList = mutableListOf<TaxiStandResponse>()
         val db = Firebase.firestore
         val states = db.collection("taxiStands")
             .whereEqualTo("cityId", cityId)
             .get().await()
-        val lat = -20.346938
-        val lon = -40.384841
 
         val mapDistances = mutableMapOf<Double, TaxiStandResponse>()
 
-        states.documents.forEach {
+        states.documents.forEach { documentSnapshot ->
             val taxiStandResponse = TaxiStandResponse(
-                id = it.id,
-                cityId = it.data?.get("cityId") as String,
-                fullNameOfAddress = it.data?.get("fullNameOfAddress") as String,
-                pointName = it.data?.get("pointName") as String,
-                pointPhoto = it.data?.get("pointPhoto") as String,
-                pointPhone = it.data?.get("pointPhone") as String,
-                latitude = it.data?.get("latitude") as Double,
-                longitude = it.data?.get("longitude") as Double
+                id = documentSnapshot.id,
+                cityId = documentSnapshot.data?.get("cityId") as String,
+                fullNameOfAddress = documentSnapshot.data?.get("fullNameOfAddress") as String,
+                pointName = documentSnapshot.data?.get("pointName") as String,
+                pointPhoto = documentSnapshot.data?.get("pointPhoto") as String,
+                pointPhone = documentSnapshot.data?.get("pointPhone") as String,
+                latitude = documentSnapshot.data?.get("latitude") as Double,
+                longitude = documentSnapshot.data?.get("longitude") as Double
             )
 
-            val distance = AddressCalc.getDistanceFromLatLonInKm(lat, lon, it.data?.get("latitude") as Double, it.data?.get("longitude") as Double)
-            mapDistances[distance] = taxiStandResponse
+            location?.let {
+                val distance = AddressCalc.getDistanceFromLatLonInKm(
+                    it.latitude,
+                    it.longitude,
+                    taxiStandResponse.latitude,
+                    taxiStandResponse.longitude
+                )
+                mapDistances[distance] = taxiStandResponse
+            }
 
-            tempList.add(
+            originalList.add(
                 taxiStandResponse
             )
         }
-        return mapDistances.toSortedMap().values.toList()
+        return if (location != null) {
+            mapDistances.toSortedMap().values.toList()
+        } else {
+            originalList
+        }
     }
 
     override suspend fun getDetailStand(id: String): TaxiStandResponse {

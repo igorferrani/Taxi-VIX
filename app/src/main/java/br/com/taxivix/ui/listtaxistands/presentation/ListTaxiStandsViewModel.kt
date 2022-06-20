@@ -1,6 +1,7 @@
 package br.com.taxivix.ui.listtaxistands.presentation
 
 import android.app.Application
+import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -20,20 +21,24 @@ class ListTaxiStandsViewModel(
     private val _uiState = MutableStateFlow(ListTaxiStandsState())
     val uiState: StateFlow<ListTaxiStandsState> = _uiState.asStateFlow()
 
+    private val _locationState = MutableStateFlow(UserLocationState())
+    val locationState: StateFlow<UserLocationState> = _locationState.asStateFlow()
+
     fun onEvent(event: ListTaxiStandsEvent) {
         when (event) {
-            ListTaxiStandsEvent.GetListTaxiStands -> getListTaxiStands()
+            is ListTaxiStandsEvent.GetListTaxiStands -> getListTaxiStands(event.location)
             ListTaxiStandsEvent.GetCurrentCity -> onGetCurrentCity()
+            is ListTaxiStandsEvent.ChangePrefUserLocation -> onChangeStateLocation(event.isUsingLocation)
         }
     }
 
-    private fun getListTaxiStands() {
+    private fun getListTaxiStands(location: Location?) {
         viewModelScope.launch {
             try {
                 _uiState.update { it.copy(isLoading = true) }
                 val cityId = SharedPreferencesManager.getInstance(getApplication())
                     .getString("cityId", "")
-                val result = listTaxiStandsUseCase(cityId ?: "")
+                val result = listTaxiStandsUseCase(cityId ?: "", location)
                 _uiState.update { it.copy(items = result) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e) }
@@ -41,6 +46,13 @@ class ListTaxiStandsViewModel(
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    private fun onChangeStateLocation(isUsingLocation: Boolean) {
+        _locationState.update { it.copy(
+            isUsingLocation = isUsingLocation,
+            valueChanged = true
+        ) }
     }
 
     private fun onGetCurrentCity() {
