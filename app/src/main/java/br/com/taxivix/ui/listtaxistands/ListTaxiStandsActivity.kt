@@ -10,13 +10,17 @@ import android.location.LocationManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,7 +61,11 @@ class ListTaxiStandsActivity : ComponentActivity() {
 
     private fun getListTaxiStands() {
         if (viewModel.locationState.value.isUsingLocation) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 getLocation()
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
@@ -105,7 +113,9 @@ private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, getListT
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier.background(Color(0xffEEEEEE))
+    ) {
         if (isLoading) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth()
@@ -130,9 +140,10 @@ private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, getListT
                 modifier = Modifier
                     .padding(start = 6.dp, bottom = 6.dp),
                 checked = checkIsUsingLocation, onCheckedChange = {
-                viewModel.onEvent(ListTaxiStandsEvent.ChangePrefUserLocation(it))
-            })
-            Text("Usar minha localização",
+                    viewModel.onEvent(ListTaxiStandsEvent.ChangePrefUserLocation(it))
+                })
+            Text(
+                "Usar minha localização",
                 modifier = Modifier
                     .padding(start = 6.dp, bottom = 6.dp)
             )
@@ -162,30 +173,39 @@ private fun ContainerListTaxiStands(viewModel: ListTaxiStandsViewModel, getListT
 @Composable
 private fun ItemPoint(item: TaxiStand) {
     val context = LocalContext.current
-    Row(Modifier.clickable {
-        val intent = Intent(context, DetailTaxiStandActivity::class.java)
-        intent.putExtra("id", item.id)
-        context.startActivity(intent)
-    }) {
-        Column(
-            modifier = Modifier
-                .padding(6.dp)
-                .width(100.dp)
-        ) {
-            NetworkImage(
-                modifier = Modifier
-                    .aspectRatio(1f),
-                url = item.pointPhoto,
-            )
+    Row(
+        modifier = Modifier.clickable {
+            val intent = Intent(context, DetailTaxiStandActivity::class.java)
+            intent.putExtra("id", item.id)
+            context.startActivity(intent)
         }
-        Column(
-            modifier = Modifier
-                .padding(12.dp)
-                .weight(1f)
+            .padding(6.dp)
+            .clip(RoundedCornerShape(10.dp))
+    ) {
+        Row(
+            Modifier
+                .background(Color.White)
         ) {
-            Text(text = item.pointName, fontWeight = FontWeight.Bold)
-            Text(text = item.fullNameOfAddress)
-            Text(text = item.pointPhone)
+            Column(
+                modifier = Modifier
+                    .padding(6.dp)
+                    .width(100.dp)
+            ) {
+                NetworkImage(
+                    modifier = Modifier
+                        .aspectRatio(1f),
+                    url = item.pointPhoto,
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .weight(1f)
+            ) {
+                Text(text = item.pointName, fontWeight = FontWeight.Bold)
+                Text(text = item.fullNameOfAddress)
+                Text(text = item.pointPhone)
+            }
         }
     }
 }

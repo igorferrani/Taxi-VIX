@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
@@ -18,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,7 +29,7 @@ import br.com.taxivix.ui.detailtaxistand.presentation.DetailTaxiStandViewModel
 import br.com.taxivix.ui.theme.TaxiVIXTheme
 import br.com.taxivix.util.NetworkImage
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
+import java.util.*
 
 class DetailTaxiStandActivity : ComponentActivity() {
     private val viewModel: DetailTaxiStandViewModel by viewModel()
@@ -95,7 +98,7 @@ private fun ContainerListTaxiStands(viewModel: DetailTaxiStandViewModel, callPho
             TopAppBar(
                 title = {
                     taxiStand?.let {
-                        Text(text = it.pointName)
+                        Text(text = it.pointName, color = MaterialTheme.colors.onPrimary)
                     }
                 },
                 navigationIcon = {
@@ -105,8 +108,6 @@ private fun ContainerListTaxiStands(viewModel: DetailTaxiStandViewModel, callPho
                         Icon(Icons.Filled.ArrowBack,"")
                     }
                 },
-                backgroundColor = Color.Blue,
-                contentColor = Color.White,
                 elevation = 12.dp
             )
         }, content = {
@@ -151,7 +152,8 @@ private fun ContentDetailTaxiStand(item: TaxiStand?, callPhoneNumber: (number: S
             Button(
                 modifier = Modifier
                     .padding(12.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colors.secondary),
                 onClick = {
                     callPhoneNumber(item.pointPhone)
                 }
