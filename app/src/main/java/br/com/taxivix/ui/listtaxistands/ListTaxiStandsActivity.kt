@@ -23,9 +23,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import br.com.taxivix.BuildConfig
 import br.com.taxivix.domain.model.TaxiStand
 import br.com.taxivix.ui.confirmaddress.ConfirmAddressActivity
 import br.com.taxivix.ui.detailtaxistand.DetailTaxiStandActivity
@@ -77,13 +79,15 @@ class ListTaxiStandsActivity : ComponentActivity() {
 
     @SuppressLint("MissingPermission")
     private fun getLocation() {
-        /*val location = Location(LocationManager.GPS_PROVIDER)
-        location.latitude = -20.346991
-        location.longitude = -40.384819
-        viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(location))
-        return*/
-        fusedLocationProviderClient?.lastLocation?.addOnCompleteListener {
-            viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(it.result))
+        if (BuildConfig.IS_MOCK) {
+            val location = Location(LocationManager.GPS_PROVIDER)
+            location.latitude = -20.346991
+            location.longitude = -40.384819
+            viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(location))
+        } else {
+            fusedLocationProviderClient?.lastLocation?.addOnCompleteListener {
+                viewModel.onEvent(ListTaxiStandsEvent.GetListTaxiStands(it.result))
+            }
         }
     }
 }
@@ -202,8 +206,8 @@ private fun ItemPoint(item: TaxiStand) {
                     .padding(12.dp)
                     .weight(1f)
             ) {
-                Text(text = item.pointName, fontWeight = FontWeight.Bold)
-                Text(text = item.fullNameOfAddress)
+                Text(text = item.pointName, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(text = item.fullNameOfAddress, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(text = item.pointPhone)
             }
         }
